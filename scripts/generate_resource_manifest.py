@@ -126,7 +126,6 @@ def main() -> int:
                 "sentinels": list(
                     definition.install_sentinels or definition.sentinels
                 ),
-                "files": list(pack.files),
             }
         if part_archives:
             entry["parts"] = [

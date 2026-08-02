@@ -77,7 +77,7 @@ _FASTER_WHISPER = (
 _HUGGING_FACE = (
     PythonRequirement("huggingface_hub", "huggingface-hub>=0.25"),
 )
-_DEMUCS = (PythonRequirement("demucs", "demucs==4.0.1"),)
+_DEMUCS = (PythonRequirement("demucs", "demucs==4.1.0"),)
 
 
 _DEFINITIONS = (

@@ -28,8 +28,11 @@ $whisperTiny = Expand-Pack "whisper-tiny-*.zip" "whisper-tiny-model"
 
 function Test-Imports([string[]]$Packs, [string[]]$Modules) {
     $paths = @($Packs | ForEach-Object { Join-Path $_ "site-packages" })
-    $pathJson = $paths | ConvertTo-Json -Compress
-    $moduleJson = $Modules | ConvertTo-Json -Compress
+    # -InputObject preserves a one-element list as a JSON array. Piping a
+    # single path would serialize it as a string and insert path characters
+    # into sys.path one by one.
+    $pathJson = ConvertTo-Json -InputObject @($paths) -Compress
+    $moduleJson = ConvertTo-Json -InputObject @($Modules) -Compress
     $code = "import json,sys; sys.path[:0]=json.loads(r'''$pathJson'''); [__import__(m) for m in json.loads(r'''$moduleJson''')]; print('ok')"
     & $python -I -c $code
     if ($LASTEXITCODE -ne 0) { throw "Resource pack import smoke-test failed: $($Modules -join ', ')" }

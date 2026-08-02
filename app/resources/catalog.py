@@ -395,7 +395,9 @@ _RUNTIME_DEFINITIONS = (
         protocol="ndjson-v1",
         capabilities=("whisper", "cuda"),
         feature="stt",
-        requires=("runtime:python:3.12",),
+        # CTranslate2 reuses the CUDA/cuDNN DLLs shipped in the shared Torch
+        # CUDA pack instead of depending on a system CUDA installation.
+        requires=("runtime:python:3.12", "runtime:torch:cuda"),
         download_size=650_000_000,
         install_size=1_450_000_000,
     ),

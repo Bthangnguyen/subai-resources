@@ -34,7 +34,7 @@ jobs:
           gh run download '${{ inputs.source_run_id }}' --pattern '*resource-pack' --dir resource-artifacts --repo '${{ github.repository }}'
           New-Item -ItemType Directory -Path resource-dist -Force | Out-Null
           Get-ChildItem -LiteralPath resource-artifacts -Recurse -Filter '*.zip' |
-            Copy-Item -Destination resource-dist
+            Move-Item -Destination resource-dist
       - run: python -m pip install cryptography
       - name: Validate the complete catalog
         run: python scripts/validate_resource_packs.py resource-dist

@@ -43,7 +43,13 @@ jobs:
           SUBAI_RESOURCE_OWNER: ${{ github.repository_owner }}
           SUBAI_RESOURCE_SIGNING_KEY: ${{ secrets.SUBAI_RESOURCE_SIGNING_KEY }}
         run: python scripts/generate_resource_manifest.py resource-dist resource-dist/manifest-v2.json --tag '${{ inputs.release_tag }}'
-      - name: Replace the release manifest atomically
+      - name: Publish release assets and multipart archives
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload '${{ inputs.release_tag }}' resource-dist/manifest-v2.json --clobber --repo '${{ github.repository }}'
+        shell: pwsh
+        run: |
+          gh release view '${{ inputs.release_tag }}' --repo '${{ github.repository }}' *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create '${{ inputs.release_tag }}' --title '${{ inputs.release_tag }}' --notes 'Signed SubAI resource packs' --repo '${{ github.repository }}'
+          }
+          gh release upload '${{ inputs.release_tag }}' resource-dist/* --clobber --repo '${{ github.repository }}'

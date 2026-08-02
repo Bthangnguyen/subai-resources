@@ -44,12 +44,21 @@ elseif ($lockMap.ContainsKey($ResourceId)) {
     $site = Join-Path $stage "site-packages"
     New-Item -ItemType Directory -Path $site -Force | Out-Null
     $lock = Join-Path $root ("resource-packs\locks\" + $lockMap[$ResourceId])
-    $pipArgs = @("install", "--only-binary=:all:", "--target", $site, "-r", $lock)
+    # Source distributions are permitted only in CI while constructing the
+    # prebuilt archive (for example jieba and Demucs). End-user machines never
+    # run pip or compile packages.
+    $pipArgs = @("install", "--target", $site, "-r", $lock)
     if ($ResourceId -eq "runtime:torch:cpu") {
-        $pipArgs += @("--index-url", "https://download.pytorch.org/whl/cpu")
+        $pipArgs += @(
+            "--index-url", "https://download.pytorch.org/whl/cpu",
+            "--extra-index-url", "https://pypi.org/simple"
+        )
     }
     elseif ($ResourceId -eq "runtime:torch:cuda") {
-        $pipArgs += @("--index-url", "https://download.pytorch.org/whl/cu128")
+        $pipArgs += @(
+            "--index-url", "https://download.pytorch.org/whl/cu128",
+            "--extra-index-url", "https://pypi.org/simple"
+        )
     }
     python -m pip @pipArgs
     if ($LASTEXITCODE -ne 0) { throw "Failed to build $ResourceId from $lock" }

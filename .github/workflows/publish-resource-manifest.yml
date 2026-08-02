@@ -29,6 +29,7 @@ jobs:
       - name: Download the already-built resource packs
         uses: actions/download-artifact@v4
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ inputs.source_run_id }}
           pattern: "*resource-pack"
           path: resource-dist

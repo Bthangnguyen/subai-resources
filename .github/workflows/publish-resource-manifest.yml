@@ -38,6 +38,9 @@ jobs:
       - run: python -m pip install cryptography
       - name: Validate the complete catalog
         run: python scripts/validate_resource_packs.py resource-dist
+      - name: Smoke-test packs with CPython Embedded
+        shell: pwsh
+        run: ./scripts/smoke_resource_packs.ps1 -PackDirectory resource-dist
       - name: Sign the current dependency graph
         env:
           SUBAI_RESOURCE_OWNER: ${{ github.repository_owner }}

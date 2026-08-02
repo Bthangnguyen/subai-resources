@@ -54,11 +54,19 @@ def split_release_archive(archive: Path, maximum: int) -> tuple[Path, ...]:
     with archive.open("rb") as source:
         index = 1
         while True:
-            chunk = source.read(maximum)
-            if not chunk:
+            first = source.read(min(maximum, 8 * 1024 * 1024))
+            if not first:
                 break
             target = archive.with_name(f"{archive.name}.part{index:03d}")
-            target.write_bytes(chunk)
+            written = 0
+            with target.open("wb") as output:
+                chunk = first
+                while chunk:
+                    output.write(chunk)
+                    written += len(chunk)
+                    if written >= maximum:
+                        break
+                    chunk = source.read(min(maximum - written, 8 * 1024 * 1024))
             parts.append(target)
             index += 1
     return tuple(parts)

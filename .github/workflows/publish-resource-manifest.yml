@@ -54,4 +54,5 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             gh release create '${{ inputs.release_tag }}' --title '${{ inputs.release_tag }}' --notes 'Signed SubAI resource packs' --repo '${{ github.repository }}'
           }
-          gh release upload '${{ inputs.release_tag }}' resource-dist/* --clobber --repo '${{ github.repository }}'
+          $assets = Get-ChildItem -LiteralPath resource-dist -File | Select-Object -ExpandProperty FullName
+          gh release upload '${{ inputs.release_tag }}' $assets --clobber --repo '${{ github.repository }}'

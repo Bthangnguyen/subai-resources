@@ -1,0 +1,49 @@
+name: Publish signed resource manifest
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful resource-pack workflow run ID
+        required: true
+      release_tag:
+        description: GitHub release tag containing the pack assets
+        required: true
+        default: "resources-v1"
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  PYTHONPATH: ${{ github.workspace }}
+
+jobs:
+  publish-manifest:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download the already-built resource packs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh run download '${{ inputs.source_run_id }}' --pattern '*resource-pack' --dir resource-artifacts --repo '${{ github.repository }}'
+          New-Item -ItemType Directory -Path resource-dist -Force | Out-Null
+          Get-ChildItem -LiteralPath resource-artifacts -Recurse -Filter '*.zip' |
+            Copy-Item -Destination resource-dist
+      - run: python -m pip install cryptography
+      - name: Validate the complete catalog
+        run: python scripts/validate_resource_packs.py resource-dist
+      - name: Sign the current dependency graph
+        env:
+          SUBAI_RESOURCE_OWNER: ${{ github.repository_owner }}
+          SUBAI_RESOURCE_SIGNING_KEY: ${{ secrets.SUBAI_RESOURCE_SIGNING_KEY }}
+        run: python scripts/generate_resource_manifest.py resource-dist resource-dist/manifest-v2.json --tag '${{ inputs.release_tag }}'
+      - name: Replace the release manifest atomically
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload '${{ inputs.release_tag }}' resource-dist/manifest-v2.json --clobber --repo '${{ github.repository }}'

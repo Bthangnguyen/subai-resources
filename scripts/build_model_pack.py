@@ -115,7 +115,10 @@ def main() -> int:
         elif args.resource_id == "yt-dlp":
             target = stage / "bin" / "yt-dlp.exe"
             download(str(definition.download_url), target)
-        elif args.resource_id.startswith("whisper:") or args.resource_id == "opus-mt":
+        elif (
+            args.resource_id.startswith("whisper:")
+            or args.resource_id in {"opus-mt", "omnivoice"}
+        ):
             snapshot(str(definition.repository_id), str(definition.revision), stage)
         elif args.resource_id == "rapidocr":
             build_rapidocr(stage, temporary)

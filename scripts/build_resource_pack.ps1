@@ -23,6 +23,7 @@ $lockMap = @{
     "runtime:demucs" = "demucs.lock"
     "runtime:opus-mt" = "opus-mt.lock"
     "runtime:funasr" = "funasr.lock"
+    "runtime:omnivoice" = "omnivoice.lock"
 }
 
 if ($ResourceId -eq "runtime:python:3.12") {
@@ -48,6 +49,11 @@ elseif ($lockMap.ContainsKey($ResourceId)) {
     # prebuilt archive (for example jieba and Demucs). End-user machines never
     # run pip or compile packages.
     $pipArgs = @("install", "--target", $site, "-r", $lock)
+    if ($ResourceId -eq "runtime:omnivoice") {
+        # The complete lock deliberately excludes torch/torchaudio because
+        # those are supplied by the shared runtime:torch:cuda pack.
+        $pipArgs += "--no-deps"
+    }
     if ($ResourceId -eq "runtime:torch:cpu") {
         $pipArgs += @(
             "--index-url", "https://download.pytorch.org/whl/cpu",

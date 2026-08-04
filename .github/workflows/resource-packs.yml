@@ -34,6 +34,7 @@ jobs:
           - runtime:demucs
           - runtime:opus-mt
           - runtime:funasr
+          - runtime:omnivoice
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -69,6 +70,7 @@ jobs:
           - demucs:mdx
           - opus-mt
           - funasr:paraformer-zh
+          - omnivoice
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

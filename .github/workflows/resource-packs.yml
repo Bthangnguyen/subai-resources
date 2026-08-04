@@ -111,4 +111,4 @@ jobs:
       - name: Publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create '${{ inputs.release_tag }}' resource-dist/* --title '${{ inputs.release_tag }}' --notes 'Signed SubAI resource packs' --repo '${{ github.repository }}'
+        run: gh release create '${{ inputs.release_tag }}' resource-dist/*.zip resource-dist/manifest-v2.json --title '${{ inputs.release_tag }}' --notes 'Signed SubAI resource packs' --repo '${{ github.repository }}'
